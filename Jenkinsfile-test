@@ -32,10 +32,10 @@ pipeline{
                 script {
                     withCredentials([usernamePassword(credentialsId: 'nexus-creds', passwordVariable: 'nexus_pass', usernameVariable: 'nexus_user')]) {
                         sh '''
-                            docker build -t tomcat-webapp/springboot:${VERSION} .
+                            docker build -t 35.184.45.48:8083/springboot:${VERSION} .
                             docker login -u $nexus_user -p $nexus_pass 35.184.45.48:8083
-                            docker push 35.184.45.48:8083/tomcat-webapp/springboot:${VERSION} 
-                            docker rmi tomcat-webapp/springboot:${VERSION}
+                            docker push 35.184.45.48:8083/springboot:${VERSION} 
+                            docker rmi 35.184.45.48:8083/springboot:${VERSION}
                         '''
                     }
                 }
