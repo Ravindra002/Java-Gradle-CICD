@@ -1,8 +1,8 @@
 pipeline{
     agent any
-    // environment{
-    //     VERSION = "${env.BUILD_ID}"
-    // }
+    environment{
+        VERSION = "${env.BUILD_ID}"
+    }
     stages{
         stage("sonar qube analysis"){
             // agent{
@@ -25,6 +25,20 @@ pipeline{
                         }
                     }
                }
+            }
+        }
+        stage ("docker build & docker push") {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'nexus-creds', passwordVariable: 'nexus_pass', usernameVariable: 'nexus_user')]) {
+                        sh '''
+                            docker build -t tomcat-webapp/springboot:${VERSION} .
+                            docker login -u $nexus_user -p $nexus_pass 35.184.45.48:8083
+                            docker push tomcat-webapp/springboot:${VERSION} 
+                            docker rmi tomcat-webapp/springboot:${VERSION}
+                        '''
+                    }
+                }
             }
         }
     }
