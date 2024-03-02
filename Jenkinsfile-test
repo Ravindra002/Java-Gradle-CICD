@@ -44,7 +44,9 @@ pipeline{
         stage ("datree for helm charts") {
             steps {
                 script {
-                    sh 'helm datree test kubernetes/myapp/'
+                    dir ('kubernetes/') {
+                    sh 'datree test myapp/'
+                    }
                 }
             }
         }
