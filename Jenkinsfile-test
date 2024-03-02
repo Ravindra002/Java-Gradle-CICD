@@ -41,11 +41,27 @@ pipeline{
                 }
             }
         }
-        stage ("datree for helm charts") {
+        // stage ("datree for helm charts") {
+        //     steps {
+        //         script {
+        //             dir ('kubernetes/') {
+        //             sh 'helm datree test myapp'
+        //             }
+        //         }
+        //     }
+        // }
+        stage ('Publishing Helm Charts to Nexus Repo') {
             steps {
                 script {
-                    dir ('kubernetes/') {
-                    sh 'helm datree test myapp/'
+                    withCredentials([usernamePassword(credentialsId: 'nexus-creds', passwordVariable: 'nexus_pass', usernameVariable: 'nexus_user')]) {
+                        dir ('kubernetes/') {
+                        sh '''
+                            helmversion = $(helm show chart myapp | grep version | cut -d: -f 2 | tr -d ' ') 
+                            tar -czvf myapp-${helmversion}.tgz myapp
+                            curl -u $nexus_user:$nexus_password http://34.42.226.116:8081/repository/shared-helm-charts/ --upload-file myapp-${helmversion}.tgz -v
+
+                        '''
+                        }
                     }
                 }
             }
