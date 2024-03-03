@@ -15,7 +15,7 @@ pipeline{
                 withSonarQubeEnv(credentialsId: 'sonar-token') {
                       sh '''
                       chmod +x gradlew
-                      ./gradlew sonarqube
+                      ./gradlew sonarqube --no-daemon
                       '''
                     }
                 timeout (time: 1, unit: 'HOURS') {
