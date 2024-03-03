@@ -1,8 +1,8 @@
 pipeline{
     agent any
-    environment{
-        VERSION = "${env.BUILD_ID}"
-    }
+    // environment{
+    //     VERSION = "${env.BUILD_ID}"
+    // }
     stages{
         stage("sonar qube analysis"){
             // agent{
@@ -27,20 +27,20 @@ pipeline{
                }
             }
         }
-        stage ("docker build & docker push") {
-            steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'nexus-creds', passwordVariable: 'nexus_pass', usernameVariable: 'nexus_user')]) {
-                        sh '''
-                            docker build -t 34.42.226.116:8083/springboot:${VERSION} .
-                            docker login -u $nexus_user -p $nexus_pass 34.42.226.116:8083
-                            docker push 34.42.226.116:8083/springboot:${VERSION} 
-                            docker rmi 34.42.226.116:8083/springboot:${VERSION}
-                        '''
-                    }
-                }
-            }
-        }
+        // stage ("docker build & docker push") {
+        //     steps {
+        //         script {
+        //             withCredentials([usernamePassword(credentialsId: 'nexus-creds', passwordVariable: 'nexus_pass', usernameVariable: 'nexus_user')]) {
+        //                 sh '''
+        //                     docker build -t 34.42.226.116:8083/springboot:${VERSION} .
+        //                     docker login -u $nexus_user -p $nexus_pass 34.42.226.116:8083
+        //                     docker push 34.42.226.116:8083/springboot:${VERSION} 
+        //                     docker rmi 34.42.226.116:8083/springboot:${VERSION}
+        //                 '''
+        //             }
+        //         }
+        //     }
+        // }
         // stage ("datree for helm charts") {
         //     steps {
         //         script {
@@ -50,26 +50,26 @@ pipeline{
         //         }
         //     }
         // }
-        stage ('Publishing Helm Charts to Nexus Repo') {
-            steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'nexus-creds', passwordVariable: 'nexus_pass', usernameVariable: 'nexus_user')]) {
-                        dir ('kubernetes/') {
-                        sh '''
-                            helmversion=$(helm show chart myapp | grep version | cut -d: -f 2 | tr -d ' ') 
-                            tar -czvf myapp-${helmversion}.tgz myapp
-                            curl -u $nexus_user:$nexus_pass http://34.42.226.116:8081/repository/shared-helm-charts/ --upload-file myapp-${helmversion}.tgz -v
+    //     stage ('Publishing Helm Charts to Nexus Repo') {
+    //         steps {
+    //             script {
+    //                 withCredentials([usernamePassword(credentialsId: 'nexus-creds', passwordVariable: 'nexus_pass', usernameVariable: 'nexus_user')]) {
+    //                     dir ('kubernetes/') {
+    //                     sh '''
+    //                         helmversion=$(helm show chart myapp | grep version | cut -d: -f 2 | tr -d ' ') 
+    //                         tar -czvf myapp-${helmversion}.tgz myapp
+    //                         curl -u $nexus_user:$nexus_pass http://34.42.226.116:8081/repository/shared-helm-charts/ --upload-file myapp-${helmversion}.tgz -v
 
-                        '''
-                        }
-                    }
-                }
-            }
-        }
-    }
-    post {
-        always {
-            mail bcc: '', body: "<br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br> URL de build: ${env.BUILD_URL}", cc: '', charset: 'UTF-8', from: '', mimeType: 'text/html', replyTo: '', subject: "${currentBuild.result} CI: Project name -> ${env.JOB_NAME}", to: "ravipanch.2477@gmail.com";
-        }
+    //                     '''
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+    // post {
+    //     always {
+    //         mail bcc: '', body: "<br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br> URL de build: ${env.BUILD_URL}", cc: '', charset: 'UTF-8', from: '', mimeType: 'text/html', replyTo: '', subject: "${currentBuild.result} CI: Project name -> ${env.JOB_NAME}", to: "ravipanch.2477@gmail.com";
+    //     }
     }
 }
